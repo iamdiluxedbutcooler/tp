@@ -5,22 +5,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import seedu.address.model.person.Person;
 
-/**
- * An UI component that displays information of a {@code Person}.
- */
 public class PersonCard extends UiPart<Region> {
 
     private static final String FXML = "PersonListCard.fxml";
-
-    /**
-     * Note: Certain keywords such as "location" and "resources" are reserved keywords in JavaFX.
-     * As a consequence, UI elements' variable names cannot be set to such keywords
-     * or an exception will be thrown by JavaFX during runtime.
-     *
-     * @see <a href="https://github.com/se-edu/addressbook-level4/issues/336">The issue on AddressBook level 4</a>
-     */
 
     public final Person person;
 
@@ -31,39 +21,53 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label id;
     @FXML
-    private Label phone;
-    @FXML
-    private Label address;
-    @FXML
-    private Label job;
-    @FXML
-    private Label email;
-    @FXML
-    private Label income;
-    @FXML
-    private Label remark;
+    private VBox detailsBox;
     @FXML
     private FlowPane tags;
 
-    /**
-     * Creates a {@code PersonCode} with the given {@code Person} and index to display.
-     */
+    private LabeledField phoneField;
+    private LabeledField emailField;
+    private LabeledField addressField;
+    private LabeledField jobField;
+    private LabeledField incomeField;
+    private LabeledField remarkField;
+
     public PersonCard(Person person, int displayedIndex) {
         super(FXML);
         this.person = person;
         id.setText(displayedIndex + ". ");
         name.setText(person.getName().fullName);
-        phone.setText(person.getPhone().value);
-        address.setText(person.getAddress().value);
-        email.setText(person.getEmail().value);
-        job.setText(person.getJob().value);
-        income.setText(person.getIncome().toString());
-        remark.setText(person.getRemark().value);
 
-        // Create a label for the tier tag
+        createFields();
+        updateFields();
+
+        detailsBox.getChildren().addAll(
+                phoneField, emailField, addressField, jobField, incomeField, remarkField
+        );
+
+        createTierLabel();
+    }
+
+    private void createFields() {
+        phoneField = new LabeledField("Phone", "");
+        emailField = new LabeledField("Email", "");
+        addressField = new LabeledField("Address", "");
+        jobField = new LabeledField("Job", "");
+        incomeField = new LabeledField("Income", "");
+        remarkField = new LabeledField("Remark", "");
+    }
+
+    private void updateFields() {
+        phoneField.setValue(person.getPhone().value);
+        emailField.setValue(person.getEmail().value);
+        addressField.setValue(person.getAddress().value);
+        jobField.setValue(person.getJob().value);
+        incomeField.setValue(person.getIncome().toString());
+        remarkField.setValue(person.getRemark().value);
+    }
+
+    private void createTierLabel() {
         Label tierLabel = new Label(person.getTier().tagName.toString());
-
-        // Apply a different style class based on the tier value
         String tier = person.getTier().tagName.toString().toUpperCase();
         switch (tier) {
         case "GOLD" -> tierLabel.getStyleClass().add("gold-tier");
@@ -73,9 +77,11 @@ public class PersonCard extends UiPart<Region> {
         default -> tierLabel = null;
         }
         if (tierLabel != null) {
-            // Add the label to the FlowPane
             tags.getChildren().add(tierLabel);
         }
     }
 
+    public VBox getDetailedView() {
+        return detailsBox;
+    }
 }
